@@ -85,6 +85,13 @@ Resources:
             Auth:
               Authorizer: MyJwtAuthorizer
 
+        AdminOptionsRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MyHttpApi
+            Path: /admin/{proxy+}
+            Method: OPTIONS
+
         AdminRoutes:
           Type: HttpApi
           Properties:
@@ -93,6 +100,20 @@ Resources:
             Method: ANY
             Auth:
               Authorizer: MyJwtAuthorizer
+
+        EventOptionsRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MyHttpApi
+            Path: /events/{proxy+}
+            Method: OPTIONS
+
+        EventMineOptionsRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MyHttpApi
+            Path: /events/mine
+            Method: OPTIONS
 
         EventRoutes:
           Type: HttpApi
@@ -131,6 +152,20 @@ Resources:
             Path: /events/{event_id}
             Method: GET
 
+        UserOptionsRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MyHttpApi
+            Path: /users/{proxy+}
+            Method: OPTIONS
+
+        UserMeOptionsRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MyHttpApi
+            Path: /users/me
+            Method: OPTIONS
+
         UserRoutes:
           Type: HttpApi
           Properties:
@@ -139,6 +174,20 @@ Resources:
             Method: ANY
             Auth:
               Authorizer: MyJwtAuthorizer
+
+        RSVPOptionsRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MyHttpApi
+            Path: /rsvp/{proxy+}
+            Method: OPTIONS
+
+        RSVPMeOptionsRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MyHttpApi
+            Path: /rsvp/me
+            Method: OPTIONS
 
         RSVPRoutes:
           Type: HttpApi
