@@ -18,6 +18,7 @@ app = FastAPI(title="Event Platform API")
 ALLOWED_ORIGINS = [
     "https://eventsphere-hub.vercel.app",
     "https://eventsphere-i87lm1gsz-luckills-projects.vercel.app",
+    "https://team-project-cmpe202-01-spring2026.vercel.app",
     "http://localhost:8080",
     "http://127.0.0.1:8080",
 ]
