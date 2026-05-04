@@ -28,6 +28,7 @@ ENV/
 .coverage
 htmlcov/
 
-backend/
 app/.mypy_cache/
 app/.ruff-cache/
+
+backend/.aws-sam
