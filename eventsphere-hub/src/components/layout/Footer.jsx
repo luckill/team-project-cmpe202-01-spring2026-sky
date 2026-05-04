@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
 import { Calendar } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Footer() {
+  const { user, hasRole } = useAuth();
+  const isAttendee = hasRole("attendee");
+  const isOrganizer = hasRole("organizer");
+  const isAdmin = hasRole("admin");
+
   return (
     <footer className="border-t border-border bg-secondary/30 mt-20">
       <div className="container py-10 grid gap-8 md:grid-cols-4">
@@ -26,15 +32,19 @@ export default function Footer() {
         <div>
           <h3 className="text-sm font-semibold mb-3">Organize</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/auth?mode=signup&role=organizer" className="hover:text-foreground">Become an organizer</Link></li>
-            <li><Link to="/organizer" className="hover:text-foreground">Organizer dashboard</Link></li>
+            {(!user || isAttendee) && <li><Link to="/auth?mode=signup&role=organizer" className="hover:text-foreground">Become an organizer</Link></li>}
+            {isOrganizer && <li><Link to="/organizer" className="hover:text-foreground">Organizer dashboard</Link></li>}
+            {isOrganizer && <li><Link to="/organizer/events/new" className="hover:text-foreground">Create event</Link></li>}
           </ul>
         </div>
         <div>
           <h3 className="text-sm font-semibold mb-3">Account</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/auth?mode=signin" className="hover:text-foreground">Sign in</Link></li>
-            <li><Link to="/tickets" className="hover:text-foreground">My tickets</Link></li>
+            {!user && <li><Link to="/auth?mode=signin" className="hover:text-foreground">Sign in</Link></li>}
+            {!user && <li><Link to="/auth?mode=signup" className="hover:text-foreground">Sign up</Link></li>}
+            {user && <li><Link to="/profile" className="hover:text-foreground">Profile</Link></li>}
+            {isAttendee && <li><Link to="/tickets" className="hover:text-foreground">My registrations</Link></li>}
+            {isAdmin && <li><Link to="/admin" className="hover:text-foreground">Admin dashboard</Link></li>}
           </ul>
         </div>
       </div>

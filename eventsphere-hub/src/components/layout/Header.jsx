@@ -20,6 +20,9 @@ export default function Header() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const isAttendee = hasRole("attendee");
+  const isOrganizer = hasRole("organizer");
+  const isAdmin = hasRole("admin");
 
   const onSearch = (e) => {
     e.preventDefault();
@@ -65,7 +68,7 @@ export default function Header() {
             Browse
           </NavLink>
 
-          {user && hasRole("organizer") &&
+          {user && isOrganizer &&
           <Button asChild variant="ghost" size="sm">
               <Link to="/organizer/events/new">
                 <Plus className="h-4 w-4" /> Create event
@@ -96,18 +99,20 @@ export default function Header() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {isAttendee &&
                 <DropdownMenuItem onClick={() => navigate("/tickets")}>
-                  <Ticket className="h-4 w-4" /> My tickets
-                </DropdownMenuItem>
+                    <Ticket className="h-4 w-4" /> My registrations
+                  </DropdownMenuItem>
+                }
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <UserIcon className="h-4 w-4" /> Profile
                 </DropdownMenuItem>
-                {hasRole("organizer") &&
+                {isOrganizer &&
               <DropdownMenuItem onClick={() => navigate("/organizer")}>
                     <LayoutDashboard className="h-4 w-4" /> Organizer
                   </DropdownMenuItem>
               }
-                {hasRole("admin") &&
+                {isAdmin &&
               <DropdownMenuItem onClick={() => navigate("/admin")}>
                     <Shield className="h-4 w-4" /> Admin
                   </DropdownMenuItem>
@@ -153,13 +158,15 @@ export default function Header() {
                 </Link>
                 {user &&
                 <>
+                    {isAttendee &&
                     <Link to="/tickets" onClick={() => setOpen(false)} className="px-3 py-2 rounded-md hover:bg-accent/10">
-                      My tickets
-                    </Link>
+                        My registrations
+                      </Link>
+                    }
                     <Link to="/profile" onClick={() => setOpen(false)} className="px-3 py-2 rounded-md hover:bg-accent/10">
                       Profile
                     </Link>
-                    {hasRole("organizer") &&
+                    {isOrganizer &&
                   <>
                         <Link to="/organizer" onClick={() => setOpen(false)} className="px-3 py-2 rounded-md hover:bg-accent/10">
                           Organizer dashboard
@@ -169,7 +176,7 @@ export default function Header() {
                         </Link>
                       </>
                   }
-                    {hasRole("admin") &&
+                    {isAdmin &&
                   <Link to="/admin" onClick={() => setOpen(false)} className="px-3 py-2 rounded-md hover:bg-accent/10">
                         Admin
                       </Link>

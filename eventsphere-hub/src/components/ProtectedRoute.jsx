@@ -20,7 +20,7 @@ export default function ProtectedRoute({
   }
 
   if (!user) return <Navigate to="/auth?mode=signin" replace />;
-  if (requireRole && !hasRole(requireRole) && !hasRole("admin")) {
+  if (requireRole && !hasRole(requireRole)) {
     return <Navigate to="/" replace />;
   }
   return <>{children}</>;

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { formatLocationAddress, parseLocationAddress } from "@/lib/location";
 
 const schema = z.object({
   title: z.string().trim().min(3).max(120),
@@ -21,6 +22,7 @@ const schema = z.object({
   venue_name: z.string().trim().max(120).optional(),
   address: z.string().trim().max(240).optional(),
   city: z.string().trim().max(80).optional(),
+  state: z.string().trim().max(80).optional(),
   country: z.string().trim().max(80).optional(),
   capacity: z.number().int().positive().max(100000)
 });
@@ -46,8 +48,6 @@ function getErrorPath(error) {
   return typeof error?.path === "string" ? error.path : "";
 }
 
-
-
 export default function EventForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -70,6 +70,7 @@ export default function EventForm() {
   const [venueName, setVenueName] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const [country, setCountry] = useState("");
   const [capacity, setCapacity] = useState(100);
   const eventPath = id ? `/events/${id}` : "";
@@ -87,15 +88,17 @@ export default function EventForm() {
       if (isEdit && id) {
         const ev = await eventsApi.getEvent(id);
         if (shouldIgnore() || !ev) return;
+        const parsedLocation = parseLocationAddress(ev.location_address ?? ev.address ?? "");
         setTitle(ev.title);
         setDescription(ev.description ?? "");
         setCategoryId(ev.category_id ?? null);
         setStartAt(ev.start_at?.slice(0, 16) ?? "");
         setEndAt(ev.end_at?.slice(0, 16) ?? "");
         setVenueName(ev.venue_name ?? ev.location ?? "");
-        setAddress(ev.address ?? ev.location_address ?? "");
-        setCity(ev.city ?? "");
-        setCountry(ev.country ?? "");
+        setAddress(ev.address ?? parsedLocation.address ?? "");
+        setCity(ev.city ?? parsedLocation.city ?? "");
+        setState(ev.state ?? parsedLocation.state ?? "");
+        setCountry(ev.country ?? parsedLocation.country ?? "");
         setCapacity(ev.capacity);
       }
     } catch (error) {
@@ -127,10 +130,16 @@ export default function EventForm() {
     setSaving(true);
     try {
       const parsed = schema.safeParse({
-        title, description: description || undefined,
-        category_id: categoryId, start_at: startAt, end_at: endAt,
-        venue_name: venueName || undefined, address: address || undefined,
-        city: city || undefined, country: country || undefined,
+        title,
+        description: description || undefined,
+        category_id: categoryId,
+        start_at: startAt,
+        end_at: endAt,
+        venue_name: venueName || undefined,
+        address: address || undefined,
+        city: city || undefined,
+        state: state || undefined,
+        country: country || undefined,
         capacity: Number(capacity)
       });
       if (!parsed.success) throw new Error(parsed.error.issues[0].message);
@@ -144,7 +153,7 @@ export default function EventForm() {
         start_time: new Date(startAt).toISOString(),
         end_time: new Date(endAt).toISOString(),
         location: venueName || city || null,
-        location_address: [address, city, country].filter(Boolean).join(", ") || null,
+        location_address: formatLocationAddress({ address, city, state, country }) || null,
         capacity: Number(capacity),
         latitude: null,
         longitude: null
@@ -192,8 +201,8 @@ export default function EventForm() {
             }
           </div>
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
@@ -260,6 +269,10 @@ export default function EventForm() {
                 <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} maxLength={80} />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="state">State</Label>
+                <Input id="state" value={state} onChange={(e) => setState(e.target.value)} maxLength={80} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="country">Country</Label>
                 <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} maxLength={80} />
               </div>
@@ -283,6 +296,6 @@ export default function EventForm() {
           </Button>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 }

@@ -16,7 +16,7 @@ vi.mock("@/hooks/use-toast", () => ({
 vi.mock("@/lib/api", () => ({
   eventsApi: {
     getOrganizerEvents: vi.fn(),
-    deleteEvent: vi.fn()
+    cancelEvent: vi.fn()
   }
 }));
 
@@ -27,6 +27,7 @@ describe("OrganizerDashboard", () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("keeps dashboard load failures retryable", async () => {
@@ -45,5 +46,48 @@ describe("OrganizerDashboard", () => {
     await waitFor(() => {
       expect(eventsApi.getOrganizerEvents).toHaveBeenCalledTimes(2);
     });
+  });
+
+  it("cancels events and refreshes the dashboard", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(eventsApi.getOrganizerEvents)
+      .mockResolvedValueOnce([
+        {
+          id: "event-1",
+          title: "Launch Night",
+          start_at: "2026-07-10T18:00:00.000Z",
+          status: "approved",
+          registration_count: 12,
+          capacity: 50
+        }
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: "event-1",
+          title: "Launch Night",
+          start_at: "2026-07-10T18:00:00.000Z",
+          status: "cancelled",
+          registration_count: 12,
+          capacity: 50
+        }
+      ]);
+    vi.mocked(eventsApi.cancelEvent).mockResolvedValue({ message: "Event cancelled" });
+
+    render(
+      <MemoryRouter>
+        <OrganizerDashboard />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText("Launch Night")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel event" }));
+
+    await waitFor(() => {
+      expect(eventsApi.cancelEvent).toHaveBeenCalledWith("event-1");
+      expect(eventsApi.getOrganizerEvents).toHaveBeenCalledTimes(2);
+    });
+
+    expect(await screen.findByRole("button", { name: "Event already cancelled" })).toBeDisabled();
   });
 });

@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { formatEventDateLong, googleCalendarUrl, isEventPast } from "@/lib/eventUtils";
+import { formatLocationAddress } from "@/lib/location";
 
 const EVENT_ERROR_STATES = {
   404: {
@@ -128,7 +129,7 @@ export default function EventDetail() {
     setRsvping(true);
     try {
       await rsvpApi.create(event.id);
-      toast({ title: "You're going!", description: "Check My tickets for your confirmation code." });
+      toast({ title: "You're going!", description: "Check My registrations for your confirmation code." });
       setRefreshKey((current) => current + 1);
     } catch (error) {
       toast({ title: "Could not register", description: error.message, variant: "destructive" });
@@ -188,11 +189,19 @@ export default function EventDetail() {
   const past = isEventPast(event.end_at);
   const spotsLeft = event.capacity - event.registration_count;
   const soldOut = spotsLeft <= 0;
-  const locationText = [event.venue_name, event.address, event.city, event.country].filter(Boolean).join(", ");
+  const formattedAddress = formatLocationAddress({
+    address: event.address,
+    city: event.city,
+    state: event.state,
+    country: event.country
+  });
+  const locationLabel =
+    event.venue_name || [event.city, event.state].filter(Boolean).join(", ") || "TBA";
+  const locationText = [event.venue_name, formattedAddress].filter(Boolean).join(", ") || locationLabel;
   const scheduleItems = Array.isArray(event.schedule) ?
   event.schedule.filter((item) => item?.start_time || item?.end_time || item?.title) :
   [];
-  const mapsEmbedSrc = event.address || event.city ?
+  const mapsEmbedSrc = locationText ?
   `https://www.google.com/maps?q=${encodeURIComponent(locationText)}&output=embed` :
   null;
   const calUrl = googleCalendarUrl({
@@ -246,8 +255,8 @@ export default function EventDetail() {
                 <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden />
                 <div className="min-w-0">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">Location</p>
-                  <p className="font-semibold mt-0.5 truncate">{event.venue_name || event.city || "TBA"}</p>
-                  <p className="text-sm text-muted-foreground truncate">{[event.address, event.city].filter(Boolean).join(", ")}</p>
+                  <p className="font-semibold mt-0.5 truncate">{locationLabel}</p>
+                  <p className="text-sm text-muted-foreground truncate">{formattedAddress || "TBA"}</p>
                 </div>
               </div>
             </div>

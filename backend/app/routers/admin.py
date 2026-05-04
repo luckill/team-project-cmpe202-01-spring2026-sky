@@ -136,7 +136,8 @@ def promote_user(
     if user.role == UserRole.admin:
         raise HTTPException(400, "User is already an admin")
 
-    current_role = user.role
+    if user.role != UserRole.attendee:
+        raise HTTPException(400, "Only attendee users can be promoted to admin")
 
     cognito.admin_add_user_to_group(
         UserPoolId=user_pool_id,
@@ -144,18 +145,11 @@ def promote_user(
         GroupName="admin"
     )
 
-    if current_role == UserRole.attendee:
-        cognito.admin_remove_user_from_group(
-            UserPoolId=user_pool_id,
-            Username=user.cognito_sub,
-            GroupName="attendee"
-        )
-    elif current_role == UserRole.organizer:
-        cognito.admin_remove_user_from_group(
-            UserPoolId=user_pool_id,
-            Username=user.cognito_sub,
-            GroupName="organizer"
-        )
+    cognito.admin_remove_user_from_group(
+        UserPoolId=user_pool_id,
+        Username=user.cognito_sub,
+        GroupName="attendee"
+    )
 
     user.role = UserRole.admin
     db.commit()
