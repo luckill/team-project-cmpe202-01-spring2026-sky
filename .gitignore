@@ -30,6 +30,5 @@ htmlcov/
 
 app/.mypy_cache/
 app/.ruff-cache/
-app/
 
 backend/.aws-sam

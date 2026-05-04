@@ -12,10 +12,9 @@ charset-normalizer==3.4.4
 click==8.3.1
 cryptography==46.0.5
 dnspython==2.8.0
-ecdsa==0.19.2
 email-validator==2.3.0
 fastapi==0.129.0
-greenlet==3.3.2
+greenlet==3.2.5
 h11==0.16.0
 idna==3.11
 jmespath==1.1.0
@@ -33,7 +32,6 @@ mypy-boto3-s3==1.42.37
 mypy-boto3-sqs==1.42.3
 mypy_extensions==1.1.0
 pathspec==1.0.4
-psycopg2==2.9.12
 psycopg2-binary==2.9.11
 pyasn1==0.6.2
 pycparser==3.0
