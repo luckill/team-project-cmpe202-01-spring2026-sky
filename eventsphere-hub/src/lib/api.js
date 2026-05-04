@@ -315,6 +315,7 @@ export const authApi = {
       if (session?.tokens?.accessToken) {
         await apiRequest("/auth/logout", {
           method: "POST",
+          auth: true,
           body: { access_token: session.tokens.accessToken }
         });
       }

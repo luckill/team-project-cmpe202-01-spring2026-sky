@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -10,6 +11,10 @@ from app.services.organizer_request_service import (
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+class UpdateProfileRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
 
 
 def _serialize_user(user: User) -> dict:
@@ -29,8 +34,21 @@ def get_profile(user: User = Depends(get_current_user)):
 
 
 @router.patch("/me")
-def update_profile(_user: User = Depends(get_current_user)):
-    raise HTTPException(status_code=501, detail="Profile updates are not implemented")
+def update_profile(
+    payload: UpdateProfileRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    next_name = payload.name.strip()
+    if not next_name:
+        raise HTTPException(status_code=400, detail="name cannot be blank")
+
+    if user.name != next_name:
+        user.name = next_name
+        db.commit()
+        db.refresh(user)
+
+    return _serialize_user(user)
 
 
 @router.get("/", dependencies=[Depends(require_role(UserRole.admin))])

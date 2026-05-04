@@ -1,5 +1,5 @@
 import os
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, Request
 from pydantic import BaseModel, EmailStr
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
@@ -34,7 +34,7 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 class LogoutRequest(BaseModel):
-    access_token: str
+    access_token: str | None = None
 
 
 @router.post("/signup")
@@ -95,7 +95,10 @@ def login(data: LoginRequest):
             raise HTTPException(status_code=403, detail="User not confirmed")
         raise HTTPException(status_code=400, detail=e.response["Error"]["Message"])
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail="Login failed due to an internal error",
+        ) from e
 
 @router.post("/refresh")
 def refresh_token(data: RefreshRequest):
@@ -114,12 +117,25 @@ def refresh_token(data: RefreshRequest):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
+def _get_bearer_token(request: Request) -> str | None:
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return None
+    if auth_header.lower().startswith("bearer "):
+        return auth_header[7:].strip()
+    return None
+
+
 @router.post("/logout")
-def logout_user(data: LogoutRequest):
+def logout_user(data: LogoutRequest, request: Request):
     cognito = ensure_auth_config()
+    access_token = data.access_token or _get_bearer_token(request)
+    if not access_token:
+        raise HTTPException(status_code=400, detail="access_token is required")
+
     try:
         cognito.global_sign_out(
-            AccessToken=data.access_token,
+            AccessToken=access_token,
         )
         return {"message": "User logged out successfully", "statusCode": 200}
     except ClientError as e:

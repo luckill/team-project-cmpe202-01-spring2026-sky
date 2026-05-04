@@ -21,6 +21,29 @@ class RejectEventRequest(BaseModel):
     reason: str = Field(min_length=1, max_length=500)
 
 
+def _serialize_event(event: Event, organizer: User | None) -> dict:
+    return {
+        "id": str(event.id),
+        "title": event.title,
+        "description": event.description,
+        "rejection_reason": event.rejection_reason,
+        "organizer_id": str(event.organizer_id),
+        "organizer_name": organizer.name if organizer else None,
+        "organizer_email": organizer.email if organizer else None,
+        "category_id": str(event.category_id) if event.category_id else None,
+        "start_time": event.start_time,
+        "end_time": event.end_time,
+        "location": event.location,
+        "location_address": event.location_address,
+        "latitude": float(event.latitude) if event.latitude is not None else None,
+        "longitude": float(event.longitude) if event.longitude is not None else None,
+        "capacity": event.capacity,
+        "status": event.status,
+        "created_at": event.created_at,
+        "updated_at": event.updated_at,
+    }
+
+
 def _serialize_organizer_request(request) -> dict:
     user = request.user
     return {
@@ -39,9 +62,27 @@ def ensure_cognito_config():
     return get_user_pool_id()
 
 
+@router.get("/events", dependencies=[Depends(require_role(UserRole.admin))])
+def all_events(db: Session = Depends(get_db)):
+    rows = (
+        db.query(Event, User)
+        .join(User, Event.organizer_id == User.id)
+        .order_by(Event.created_at.desc())
+        .all()
+    )
+    return [_serialize_event(event, organizer) for event, organizer in rows]
+
+
 @router.get("/events/pending", dependencies=[Depends(require_role(UserRole.admin))])
 def pending_events(db: Session = Depends(get_db)):
-    return db.query(Event).filter(Event.status == EventStatus.pending_approval).all()
+    rows = (
+        db.query(Event, User)
+        .join(User, Event.organizer_id == User.id)
+        .filter(Event.status == EventStatus.pending_approval)
+        .order_by(Event.created_at.desc())
+        .all()
+    )
+    return [_serialize_event(event, organizer) for event, organizer in rows]
 
 
 @router.patch("/events/{event_id}/approve", dependencies=[Depends(require_role(UserRole.admin))])

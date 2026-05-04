@@ -76,15 +76,6 @@ Resources:
             Auth:
               Authorizer: MyJwtAuthorizer
 
-        RefreshTokenRoute:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref MyHttpApi
-            Path: /auth/refreshtoken
-            Method: POST
-            Auth:
-              Authorizer: MyJwtAuthorizer
-
         AdminOptionsRoute:
           Type: HttpApi
           Properties:
