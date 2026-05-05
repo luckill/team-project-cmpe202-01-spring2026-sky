@@ -324,6 +324,72 @@ Eventful uses a browser-based single-page frontend and a serverless backend:
 4. AWS Cognito handles sign-up, confirmation, login, logout, token issuance, and group-based role claims.
 5. PostgreSQL stores application entities such as users, events, categories, registrations, and organizer requests.
 
+## Deployment Diagram
+
+This view focuses on where Eventful runs in production rather than how the code is decomposed internally. The SVG below is the primary UML deployment diagram and follows the node-and-artifact style described in the [Agile Modeling deployment diagram reference](http://agilemodeling.com/artifacts/deploymentDiagram.html) and the companion [deployment diagram guidelines](https://agilemodeling.com/style/deploymentDiagram.htm). The Mermaid block mirrors the same production topology in a GitHub-editable form.
+
+![Eventful UML deployment diagram](docs/eventful-uml-deployment-diagram.svg)
+
+```mermaid
+flowchart LR
+    classDef node fill:#ffffff,stroke:#111827,stroke-width:1.5px,color:#111827;
+    classDef artifact fill:#f8fafc,stroke:#475569,stroke-width:1px,color:#0f172a;
+    classDef outer fill:#f8fafc,stroke:#64748b,stroke-width:1px,stroke-dasharray: 5 5;
+
+    subgraph client["<<device>> User Device"]
+        direction TB
+        browser["<<executionEnvironment>> Web Browser"]
+        downloadedSpa["<<artifact>> Downloaded Eventful SPA bundle"]
+    end
+
+    subgraph vercel["<<executionEnvironment>> Vercel Hosting"]
+        direction TB
+        vercelRuntime["<<executionEnvironment>> Static hosting runtime"]
+        vercelBuild["<<artifact>> eventsphere-hub production build"]
+    end
+
+    subgraph gateway["<<executionEnvironment>> AWS API Gateway HTTP API"]
+        direction TB
+        apiGatewayRuntime["<<executionEnvironment>> HTTP API runtime"]
+        apiSurface["<<artifact>> Eventful public API routes"]
+    end
+
+    subgraph lambda["<<executionEnvironment>> AWS Lambda Runtime"]
+        direction TB
+        lambdaRuntime["<<executionEnvironment>> Python 3.11 runtime"]
+        backendArtifact["<<artifact>> FastAPI backend package via Mangum"]
+    end
+
+    subgraph cognito["<<executionEnvironment>> AWS Cognito User Pool"]
+        direction TB
+        cognitoService["<<executionEnvironment>> Identity service"]
+        cognitoArtifact["<<artifact>> User accounts, groups, JWT issuer"]
+    end
+
+    subgraph postgres["<<device>> PostgreSQL Database Server"]
+        direction TB
+        dbEngine["<<executionEnvironment>> PostgreSQL engine"]
+        dbSchema["<<artifact>> Eventful application schema"]
+    end
+
+    subgraph calendar["<<executionEnvironment>> Google Calendar"]
+        direction TB
+        calendarService["<<executionEnvironment>> Calendar service"]
+        calendarArtifact["<<artifact>> Calendar event template page"]
+    end
+
+    class browser,vercelRuntime,apiGatewayRuntime,lambdaRuntime,cognitoService,dbEngine,calendarService node
+    class downloadedSpa,vercelBuild,apiSurface,backendArtifact,cognitoArtifact,dbSchema,calendarArtifact artifact
+    class client,vercel,gateway,lambda,cognito,postgres,calendar outer
+
+    browser ---|HTTPS| vercelRuntime
+    browser ---|HTTPS/JSON + JWT| apiGatewayRuntime
+    apiGatewayRuntime ---|AWS service invocation| lambdaRuntime
+    lambdaRuntime ---|HTTPS| cognitoService
+    lambdaRuntime ---|TCP/IP SQL| dbEngine
+    browser ---|HTTPS| calendarService
+```
+
 ## Tech Stack
 
 - Frontend: React 18, Vite, React Router, Tailwind CSS, shadcn/ui, TanStack Query, Vitest

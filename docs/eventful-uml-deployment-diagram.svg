@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">Eventful UML Deployment Diagram</title>
+  <desc id="desc">UML deployment diagram for Eventful showing the production deployment topology across a user device, Vercel hosting, AWS API Gateway, AWS Lambda, Cognito, PostgreSQL, and Google Calendar.</desc>
+  <defs>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #0f172a; }
+      .node-front { fill: #ffffff; stroke: #0f172a; stroke-width: 2; }
+      .node-top { fill: #e2e8f0; stroke: #0f172a; stroke-width: 2; }
+      .node-side { fill: #cbd5e1; stroke: #0f172a; stroke-width: 2; }
+      .stereo { font: italic 15px Arial, sans-serif; fill: #475569; }
+      .node-name { font: 700 20px Arial, sans-serif; fill: #0f172a; }
+      .node-sub { font: 15px Arial, sans-serif; fill: #334155; }
+      .inner-node { fill: #f8fafc; stroke: #334155; stroke-width: 1.6; }
+      .artifact-box { fill: #ffffff; stroke: #334155; stroke-width: 1.6; }
+      .artifact-fold { fill: #e2e8f0; stroke: #334155; stroke-width: 1.6; }
+      .artifact-stereo { font: italic 13px Arial, sans-serif; fill: #64748b; }
+      .artifact-text { font: 14px Arial, sans-serif; fill: #0f172a; }
+      .comm { fill: none; stroke: #1f2937; stroke-width: 2.2; }
+      .label { font: italic 14px Arial, sans-serif; fill: #334155; }
+      .note { font: 13px Arial, sans-serif; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1600" height="980" fill="#ffffff"/>
+  <text x="800" y="50" text-anchor="middle" class="title">Eventful UML Deployment Diagram</text>
+  <text x="800" y="76" text-anchor="middle" class="note">Production deployment view using node, artifact, and communication association notation.</text>
+
+  <g transform="translate(40 240)">
+    <polygon points="0,18 18,0 278,0 260,18" class="node-top"/>
+    <polygon points="260,18 278,0 278,220 260,238" class="node-side"/>
+    <rect x="0" y="18" width="260" height="220" class="node-front"/>
+    <text x="130" y="46" text-anchor="middle" class="stereo">&lt;&lt;device&gt;&gt;</text>
+    <text x="130" y="74" text-anchor="middle" class="node-name">User Device</text>
+    <rect x="20" y="100" width="220" height="44" class="inner-node"/>
+    <text x="130" y="118" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="130" y="137" text-anchor="middle" class="artifact-text">Web Browser</text>
+    <rect x="35" y="160" width="180" height="48" class="artifact-box"/>
+    <polygon points="191,160 215,160 215,184" class="artifact-fold"/>
+    <text x="125" y="178" text-anchor="middle" class="artifact-stereo">&lt;&lt;artifact&gt;&gt;</text>
+    <text x="125" y="196" text-anchor="middle" class="artifact-text">Downloaded Eventful SPA bundle</text>
+  </g>
+
+  <g transform="translate(360 90)">
+    <polygon points="0,18 18,0 298,0 280,18" class="node-top"/>
+    <polygon points="280,18 298,0 298,170 280,188" class="node-side"/>
+    <rect x="0" y="18" width="280" height="170" class="node-front"/>
+    <text x="140" y="46" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="140" y="74" text-anchor="middle" class="node-name">Vercel Hosting</text>
+    <rect x="30" y="98" width="220" height="40" class="inner-node"/>
+    <text x="140" y="122" text-anchor="middle" class="artifact-text">Static hosting runtime</text>
+    <rect x="45" y="148" width="190" height="34" class="artifact-box"/>
+    <polygon points="211,148 235,148 235,172" class="artifact-fold"/>
+    <text x="140" y="168" text-anchor="middle" class="artifact-text">eventsphere-hub production build</text>
+  </g>
+
+  <g transform="translate(740 90)">
+    <polygon points="0,18 18,0 298,0 280,18" class="node-top"/>
+    <polygon points="280,18 298,0 298,170 280,188" class="node-side"/>
+    <rect x="0" y="18" width="280" height="170" class="node-front"/>
+    <text x="140" y="46" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="140" y="74" text-anchor="middle" class="node-name">AWS API Gateway HTTP API</text>
+    <rect x="30" y="98" width="220" height="40" class="inner-node"/>
+    <text x="140" y="122" text-anchor="middle" class="artifact-text">HTTP API runtime</text>
+    <rect x="45" y="148" width="190" height="34" class="artifact-box"/>
+    <polygon points="211,148 235,148 235,172" class="artifact-fold"/>
+    <text x="140" y="168" text-anchor="middle" class="artifact-text">Eventful public API routes</text>
+  </g>
+
+  <g transform="translate(740 340)">
+    <polygon points="0,18 18,0 298,0 280,18" class="node-top"/>
+    <polygon points="280,18 298,0 298,220 280,238" class="node-side"/>
+    <rect x="0" y="18" width="280" height="220" class="node-front"/>
+    <text x="140" y="46" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="140" y="74" text-anchor="middle" class="node-name">AWS Lambda Runtime</text>
+    <rect x="30" y="100" width="220" height="44" class="inner-node"/>
+    <text x="140" y="118" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="140" y="137" text-anchor="middle" class="artifact-text">Python 3.11 runtime</text>
+    <rect x="40" y="164" width="200" height="54" class="artifact-box"/>
+    <polygon points="216,164 240,164 240,188" class="artifact-fold"/>
+    <text x="140" y="182" text-anchor="middle" class="artifact-stereo">&lt;&lt;artifact&gt;&gt;</text>
+    <text x="140" y="200" text-anchor="middle" class="artifact-text">FastAPI backend package</text>
+    <text x="140" y="216" text-anchor="middle" class="artifact-text">via Mangum</text>
+  </g>
+
+  <g transform="translate(1140 90)">
+    <polygon points="0,18 18,0 298,0 280,18" class="node-top"/>
+    <polygon points="280,18 298,0 298,170 280,188" class="node-side"/>
+    <rect x="0" y="18" width="280" height="170" class="node-front"/>
+    <text x="140" y="46" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="140" y="74" text-anchor="middle" class="node-name">AWS Cognito User Pool</text>
+    <rect x="30" y="98" width="220" height="40" class="inner-node"/>
+    <text x="140" y="122" text-anchor="middle" class="artifact-text">Identity service</text>
+    <rect x="35" y="148" width="230" height="34" class="artifact-box"/>
+    <polygon points="241,148 265,148 265,172" class="artifact-fold"/>
+    <text x="150" y="168" text-anchor="middle" class="artifact-text">User accounts, groups, JWT issuer</text>
+  </g>
+
+  <g transform="translate(1140 360)">
+    <polygon points="0,18 18,0 298,0 280,18" class="node-top"/>
+    <polygon points="280,18 298,0 298,210 280,228" class="node-side"/>
+    <rect x="0" y="18" width="280" height="210" class="node-front"/>
+    <text x="140" y="46" text-anchor="middle" class="stereo">&lt;&lt;device&gt;&gt;</text>
+    <text x="140" y="74" text-anchor="middle" class="node-name">PostgreSQL Database Server</text>
+    <rect x="30" y="102" width="220" height="44" class="inner-node"/>
+    <text x="140" y="120" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="140" y="139" text-anchor="middle" class="artifact-text">PostgreSQL engine</text>
+    <rect x="50" y="164" width="180" height="40" class="artifact-box"/>
+    <polygon points="206,164 230,164 230,188" class="artifact-fold"/>
+    <text x="140" y="188" text-anchor="middle" class="artifact-text">Eventful application schema</text>
+  </g>
+
+  <g transform="translate(360 500)">
+    <polygon points="0,18 18,0 298,0 280,18" class="node-top"/>
+    <polygon points="280,18 298,0 298,170 280,188" class="node-side"/>
+    <rect x="0" y="18" width="280" height="170" class="node-front"/>
+    <text x="140" y="46" text-anchor="middle" class="stereo">&lt;&lt;executionEnvironment&gt;&gt;</text>
+    <text x="140" y="74" text-anchor="middle" class="node-name">Google Calendar</text>
+    <rect x="40" y="98" width="200" height="40" class="inner-node"/>
+    <text x="140" y="122" text-anchor="middle" class="artifact-text">Calendar service</text>
+    <rect x="45" y="148" width="190" height="34" class="artifact-box"/>
+    <polygon points="211,148 235,148 235,172" class="artifact-fold"/>
+    <text x="140" y="168" text-anchor="middle" class="artifact-text">Calendar event template page</text>
+  </g>
+
+  <line x1="280" y1="360" x2="360" y2="190" class="comm"/>
+  <text x="282" y="248" class="label">&lt;&lt;HTTPS&gt;&gt;</text>
+
+  <polyline points="260,360 520,360 520,255 740,175" class="comm"/>
+  <text x="460" y="338" text-anchor="middle" class="label">&lt;&lt;HTTPS/JSON + JWT&gt;&gt;</text>
+
+  <line x1="880" y1="278" x2="880" y2="358" class="comm"/>
+  <text x="894" y="325" class="label">&lt;&lt;AWS service invocation&gt;&gt;</text>
+
+  <line x1="1038" y1="450" x2="1140" y2="190" class="comm"/>
+  <text x="1048" y="248" class="label">&lt;&lt;HTTPS&gt;&gt;</text>
+
+  <line x1="1038" y1="470" x2="1140" y2="470" class="comm"/>
+  <text x="1088" y="456" text-anchor="middle" class="label">&lt;&lt;TCP/IP SQL&gt;&gt;</text>
+
+  <line x1="260" y1="400" x2="360" y2="590" class="comm"/>
+  <text x="274" y="520" class="label">&lt;&lt;HTTPS&gt;&gt;</text>
+</svg>
