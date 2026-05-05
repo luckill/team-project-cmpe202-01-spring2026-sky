@@ -254,6 +254,68 @@ The wireframes below are low-fidelity, desktop-first sketches of the implemented
 
 ## Architecture Overview
 
+The GitHub-rendered Mermaid view below keeps the architecture editable in the README. The static SVG after it uses stricter UML component notation for the same runtime architecture.
+
+```mermaid
+flowchart LR
+    classDef component fill:#ffffff,stroke:#111827,stroke-width:1.5px,color:#111827;
+    classDef datastore fill:#f8fafc,stroke:#111827,stroke-width:1.5px,color:#111827;
+    classDef observer fill:#ffffff,stroke:#111827,stroke-width:1.5px,stroke-dasharray: 4 2,color:#111827;
+
+    user([Guest / Attendee / Organizer / Admin])
+
+    subgraph client["Client"]
+        direction TB
+        browser["<<component>><br/>Web Browser"]
+    end
+
+    subgraph frontend["Frontend on Vercel"]
+        direction TB
+        spa["<<component>><br/>React SPA<br/>eventsphere-hub"]
+        routes["<<component>><br/>App Router + Pages"]
+        api["<<component>><br/>API Client + Auth Session<br/>src/lib/api.js"]
+        monitor["<<component>><br/>CloudNetworkMonitor"]
+    end
+
+    subgraph aws["AWS Backend"]
+        direction TB
+        gateway["<<component>><br/>API Gateway HTTP API"]
+        lambda["<<component>><br/>AWS Lambda + Mangum"]
+        fastapi["<<component>><br/>FastAPI App"]
+        backend["<<component>><br/>Auth / Events / Users / RSVP / Admin"]
+    end
+
+    subgraph external["Data / External Services"]
+        direction TB
+        cognito["<<component>><br/>AWS Cognito"]
+        postgres[("PostgreSQL")]
+        calendar["<<component>><br/>Google Calendar"]
+    end
+
+    class user,browser,spa,routes,api,gateway,lambda,fastapi,backend,cognito,calendar component
+    class postgres datastore
+    class monitor observer
+    style client fill:#f8fafc,stroke:#64748b,stroke-width:1px,stroke-dasharray: 5 5
+    style frontend fill:#f8fafc,stroke:#64748b,stroke-width:1px,stroke-dasharray: 5 5
+    style aws fill:#f8fafc,stroke:#64748b,stroke-width:1px,stroke-dasharray: 5 5
+    style external fill:#f8fafc,stroke:#64748b,stroke-width:1px,stroke-dasharray: 5 5
+
+    user -->|uses| browser
+    browser -->|loads SPA| spa
+    spa -->|renders| routes
+    routes -->|reads and writes session state| api
+    monitor -.->|observes browser request events| api
+    api -.->|HTTP via VITE_API_BASE_URL| gateway
+    gateway -->|invokes| lambda
+    lambda -->|adapts ASGI| fastapi
+    fastapi -->|dispatches| backend
+    backend -.->|sign up, login, refresh,<br/>logout, JWT claims| cognito
+    backend -.->|users, events, categories,<br/>registrations, organizer requests| postgres
+    browser -.->|opens generated calendar link| calendar
+```
+
+![Eventful UML component diagram](docs/eventful-uml-component-diagram.svg)
+
 Eventful uses a browser-based single-page frontend and a serverless backend:
 
 1. The React frontend in `eventsphere-hub` runs on Vite and is deployed to Vercel.
@@ -346,6 +408,7 @@ The `CloudNetworkMonitor` component shows recent frontend-visible API traffic an
 │   ├── requirements.txt
 │   ├── template.yaml         # AWS SAM serverless deployment template
 │   └── tests/                # Backend tests
+├── docs/                     # README architecture diagram assets
 ├── eventsphere-hub/          # React/Vite frontend application
 ├── migrations/               # Alembic migration scripts
 ├── alembic.ini
