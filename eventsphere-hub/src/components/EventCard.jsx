@@ -21,6 +21,8 @@ export default function EventCard({ event }) {
   const past = isEventPast(event.start_at);
   const spotsLeft =
   typeof event.registration_count === "number" ? event.capacity - event.registration_count : null;
+  const locationLabel =
+  event.venue_name || [event.city, event.state].filter(Boolean).join(", ") || "TBA";
 
   return (
     <Link
@@ -59,9 +61,7 @@ export default function EventCard({ event }) {
           </div>
           <div className="flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            <span className="truncate">
-              {event.city || event.venue_name || "TBA"}
-            </span>
+            <span className="truncate">{locationLabel}</span>
           </div>
           {spotsLeft !== null && spotsLeft > 0 && spotsLeft <= 20 &&
           <div className="flex items-center gap-1.5 text-warning">

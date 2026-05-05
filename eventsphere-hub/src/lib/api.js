@@ -1,3 +1,5 @@
+import { formatLocationAddress, parseLocationAddress } from "@/lib/location";
+
 const AUTH_STORAGE_KEY = "eventful.awsAuth";
 const DEFAULT_AUTH_TOKEN_TYPE = "access";
 
@@ -410,8 +412,15 @@ export function normalizeEvent(event) {
   const categoryName =
     event.category_name ?? event.category?.name ?? event.category ?? null;
   const categorySlug = event.category_slug ?? event.category?.slug ?? slugify(categoryName);
-  const location = event.location ?? event.venue_name ?? event.city ?? "";
-  const address = event.location_address ?? event.address ?? "";
+  const rawLocationAddress = event.location_address ?? event.address ?? "";
+  const parsedLocationAddress = parseLocationAddress(rawLocationAddress);
+  const address = event.address ?? parsedLocationAddress.address;
+  const city = event.city ?? parsedLocationAddress.city ?? "";
+  const state = event.state ?? parsedLocationAddress.state ?? "";
+  const country = event.country ?? parsedLocationAddress.country ?? "";
+  const venueName = event.venue_name ?? event.location ?? "";
+  const locationAddress =
+    formatLocationAddress({ address, city, state, country }) || rawLocationAddress || "";
   const startAt = event.start_at ?? event.start_time;
   const endAt = event.end_at ?? event.end_time;
   const organizer = normalizeOrganizer(event);
@@ -423,10 +432,12 @@ export function normalizeEvent(event) {
     end_at: endAt,
     summary: event.summary ?? null,
     cover_image_url: event.cover_image_url ?? null,
-    venue_name: event.venue_name ?? location,
+    venue_name: venueName,
+    location_address: locationAddress,
     address,
-    city: event.city ?? location,
-    country: event.country ?? "",
+    city,
+    state,
+    country,
     is_free: event.is_free ?? true,
     is_online: event.is_online ?? false,
     online_url: event.online_url ?? null,
@@ -533,11 +544,14 @@ export const eventsApi = {
       body: payload
     });
   },
-  async deleteEvent(id) {
+  async cancelEvent(id) {
     return apiRequest(`/events/${id}`, {
       method: "DELETE",
       auth: true
     });
+  },
+  async deleteEvent(id) {
+    return this.cancelEvent(id);
   },
   async getOrganizerEvents() {
     const payload = await apiRequest("/events/mine", { auth: true });

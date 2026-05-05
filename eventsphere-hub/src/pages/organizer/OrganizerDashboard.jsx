@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Calendar, Users, Eye, Edit, Trash2, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Calendar, Users, Eye, Edit, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { eventsApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -10,15 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { formatEventDate } from "@/lib/eventUtils";
-
-
-
-
-
-
-
-
-
 
 const STATUS_VARIANT = {
   pending: { label: "Pending review", className: "bg-warning/15 text-warning", Icon: Clock },
@@ -34,6 +25,7 @@ export default function OrganizerDashboard() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [processingEventId, setProcessingEventId] = useState(null);
   const userId = user?.id ?? null;
 
   const load = async (shouldIgnore = () => false) => {
@@ -65,14 +57,17 @@ export default function OrganizerDashboard() {
 
   useEffect(() => {document.title = "Organizer dashboard · Eventful";}, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this event? This cannot be undone.")) return;
+  const handleCancelEvent = async (id) => {
+    if (!confirm("Cancel this event? Confirmed registrations will also be cancelled.")) return;
+    setProcessingEventId(id);
     try {
-      await eventsApi.deleteEvent(id);
+      await eventsApi.cancelEvent(id);
       toast({ title: "Event cancelled" });
       setRefreshKey((current) => current + 1);
     } catch (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setProcessingEventId(null);
     }
   };
 
@@ -152,6 +147,8 @@ export default function OrganizerDashboard() {
                   {events.map((e) => {
                   const s = STATUS_VARIANT[e.status] ?? STATUS_VARIANT.pending;
                   const Icon = s.Icon;
+                  const isCancelled = e.status === "cancelled";
+                  const isProcessing = processingEventId === e.id;
                   return (
                     <TableRow key={e.id}>
                         <TableCell className="font-medium">{e.title}</TableCell>
@@ -173,13 +170,20 @@ export default function OrganizerDashboard() {
                             <Button asChild variant="ghost" size="icon" aria-label="Edit">
                               <Link to={`/organizer/events/${e.id}/edit`}><Edit className="h-4 w-4" /></Link>
                             </Button>
-                            <Button variant="ghost" size="icon" aria-label="Delete" onClick={() => handleDelete(e.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              aria-label={isCancelled ? "Event already cancelled" : "Cancel event"}
+                              disabled={isCancelled || isProcessing}
+                              onClick={() => handleCancelEvent(e.id)}
+                            >
+                              {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4 text-destructive" />}
+                              {isCancelled ? "Cancelled" : "Cancel"}
                             </Button>
                           </div>
                         </TableCell>
-                      </TableRow>);
-
+                      </TableRow>
+                  );
                 })}
                 </TableBody>
               </Table>
@@ -187,6 +191,6 @@ export default function OrganizerDashboard() {
           }
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 }

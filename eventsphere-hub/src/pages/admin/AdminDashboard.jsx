@@ -485,6 +485,7 @@ function UserTable({ users, currentUserId, processingUserId, onPromote, onRevoke
             const isSelf = Boolean(currentUserId) && user.id === currentUserId;
             const isProcessing = processingUserId === user.id;
             const isAdmin = user.role === "admin";
+            const canPromoteToAdmin = user.role === "attendee";
             return (
               <TableRow key={user.id}>
                 <TableCell>
@@ -507,11 +508,13 @@ function UserTable({ users, currentUserId, processingUserId, onPromote, onRevoke
                       {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldOff className="h-4 w-4" />}
                       Revoke admin
                     </Button>
-                  ) : (
+                  ) : canPromoteToAdmin ? (
                     <Button variant="outline" size="sm" disabled={isSelf || isProcessing} onClick={() => onPromote(user)}>
                       {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
                       Promote
                     </Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Attendee only</span>
                   )}
                 </TableCell>
               </TableRow>

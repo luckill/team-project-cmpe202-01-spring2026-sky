@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { formatEventDateLong, googleCalendarUrl, isEventPast } from "@/lib/eventUtils";
+import { formatLocationAddress } from "@/lib/location";
 
 
 
@@ -51,7 +52,7 @@ export default function MyTickets() {
       } catch (error) {
         if (cancelled) return;
         setTickets([]);
-        setLoadError(error instanceof Error ? error.message : "Could not load your tickets.");
+        setLoadError(error instanceof Error ? error.message : "Could not load your registrations.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -63,7 +64,7 @@ export default function MyTickets() {
       cancelled = true;
     };
   }, [userId, refreshKey]);
-  useEffect(() => {document.title = "My tickets · Eventful";}, []);
+  useEffect(() => {document.title = "My registrations · Eventful";}, []);
 
   const handleCancel = async (id) => {
     if (!confirm("Cancel this registration?")) return;
@@ -83,7 +84,7 @@ export default function MyTickets() {
 
   return (
     <div className="container py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-2">My tickets</h1>
+      <h1 className="text-3xl font-bold mb-2">My registrations</h1>
       <p className="text-muted-foreground mb-6">Your registrations and confirmation codes</p>
 
       <Tabs defaultValue="upcoming">
@@ -117,7 +118,7 @@ function TicketList({
   if (error) {
     return (
       <div className="rounded-xl border border-dashed border-destructive/40 bg-destructive/5 p-12 text-center">
-        <p className="font-semibold">Tickets unavailable</p>
+        <p className="font-semibold">Registrations unavailable</p>
         <p className="mt-2 text-sm text-muted-foreground">Your registrations could not be loaded from the cloud API.</p>
       </div>);
 
@@ -126,7 +127,7 @@ function TicketList({
     return (
       <div className="rounded-xl border border-dashed border-border p-12 text-center">
         <Ticket className="h-10 w-10 text-muted-foreground mx-auto" aria-hidden />
-        <p className="mt-3 font-semibold">No tickets here</p>
+        <p className="mt-3 font-semibold">No registrations yet</p>
         <p className="text-sm text-muted-foreground">Browse events to find something to attend.</p>
         <Button asChild className="mt-4"><Link to="/browse">Browse events</Link></Button>
       </div>);
@@ -135,9 +136,17 @@ function TicketList({
   return (
     <div className="space-y-4">
       {tickets.map((t) => {
+        const formattedAddress = formatLocationAddress({
+          address: t.event.address,
+          city: t.event.city,
+          state: t.event.state,
+          country: t.event.country
+        });
+        const locationLabel =
+          t.event.venue_name || [t.event.city, t.event.state].filter(Boolean).join(", ") || "TBA";
         const calUrl = googleCalendarUrl({
           title: t.event.title,
-          location: [t.event.venue_name, t.event.address, t.event.city].filter(Boolean).join(", "),
+          location: [t.event.venue_name, formattedAddress].filter(Boolean).join(", "),
           start: t.event.start_at,
           end: t.event.end_at
         });
@@ -166,7 +175,7 @@ function TicketList({
                   </p>
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5" />
-                    {t.event.venue_name || t.event.city || "TBA"}
+                    {locationLabel}
                   </p>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <div className="rounded-md bg-secondary px-3 py-1.5">

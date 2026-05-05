@@ -33,7 +33,7 @@ const App = () =>
             <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/auth" element={<Auth />} />
 
-            <Route path="/tickets" element={<ProtectedRoute><MyTickets /></ProtectedRoute>} />
+            <Route path="/tickets" element={<ProtectedRoute requireRole="attendee"><MyTickets /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
             <Route path="/organizer" element={<ProtectedRoute requireRole="organizer"><OrganizerDashboard /></ProtectedRoute>} />
